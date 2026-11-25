@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JDMAI à beira do leito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE clínica, calma, para residentes à beira do leito
+   IDEA o roteiro do exame físico: estações por postura, como uma ficha de exame dobrada em etapas
+   PICTURE o resultado vivo (JDMAI1 e JDMAI2 sobre a régua de pontos de corte) + a trilha de posturas
+   COLOUR branco, tinta violeta-escura, violeta heliotropo como cor dominante, rosa Gottron para resistência
+   TYPE Atkinson Hyperlegible (legibilidade clínica) em dois pesos
+   LAYOUT laptop: roteiro à esquerda, resultado fixo à direita; celular: barra fixa com os escores no topo */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#15111a);--ink:light-dark(#1f1726,#efe8f4);--mut:light-dark(#5f566a,#b3a9bd);--line:light-dark(#e4dcea,#3a3044);--panel:light-dark(#f7f2fa,#1f1826);--vio:light-dark(#6a2c8e,#c79be3);--vio2:light-dark(#efe3f6,#2f2238);--rose:light-dark(#c23b55,#f07a90);--fig:light-dark(#8a7f94,#8e8399);--id:#2f8a57;--lda:#7aa33a;--mda:#d99a17;--hda:#cf4436}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{line-height:1.1;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(30px,4vw,44px);text-wrap:balance}
+h2{font-size:24px}
+h3{font-size:18px}
+p{margin:.4em 0}
+.top{background:var(--vio);color:#fff;padding:22px max(4vw,16px) 0}
+.top p{max-width:70ch;opacity:.92}
+.route{display:flex;gap:6px;overflow-x:auto;margin-top:16px;padding-bottom:0}
+.route a{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;text-decoration:none;padding:8px 10px 10px;border-radius:10px 10px 0 0;font-size:13px;min-width:84px;opacity:.85}
+.route a:hover,.route a:focus-visible{background:rgba(255,255,255,.14);opacity:1;outline:none}
+.route a.done{opacity:1}
+.route a.done span::after{content:" ✓"}
+.route svg{width:56px;height:38px}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;max-width:1240px;margin:0 auto;padding:24px max(4vw,16px) 60px}
+.side{position:sticky;top:16px;align-self:start}
+.st{border-top:1px solid var(--line);padding:26px 0 8px;scroll-margin-top:80px}
+.st:first-child{border-top:0;padding-top:4px}
+.sthead{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.sthead svg{width:70px;height:46px;flex:none}
+.n{font-size:13px;color:var(--mut)}
+.note{color:var(--mut);font-size:15px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+.ph{margin:10px 0;display:grid;gap:6px}
+.ph.dup{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ph.dup figcaption{grid-column:1/-1}
+.ph img{width:100%;max-width:560px;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+figcaption{font-size:14px;color:var(--mut)}
+.ge{margin:8px 0;border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
+dl{margin:6px 0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 10px;font-size:15px}
+dt{font-weight:700;color:var(--vio)}
+dd{margin:0}
+.err{font-size:15px;border-left:3px solid var(--rose);padding-left:10px;margin:8px 0}
+label.f{display:block;font-weight:700;margin:12px 0 6px}
+select,input[type=number]{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid color-mix(in srgb,var(--ink) 30%,transparent);border-radius:8px;padding:10px;min-height:44px;width:100%;max-width:520px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--vio);outline-offset:2px}
+.vas{display:flex;align-items:center;gap:12px;max-width:520px}
+.vas input[type=range]{flex:1;accent-color:var(--vio);height:44px}
+.vas output{font-size:22px;font-weight:700;min-width:3.2em;text-align:right;white-space:nowrap}
+.vas .clr{font-size:13px}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);max-width:430px}
+.opts{display:grid;gap:6px;margin:6px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;min-height:44px}
+.opt:has(input:checked){border-color:var(--vio);background:var(--vio2)}
+.opt input{margin-top:4px;accent-color:var(--vio);width:18px;height:18px;flex:none}
+.opt b{white-space:nowrap}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:6px}
+button{font:inherit;font-weight:700;border-radius:8px;min-height:44px;padding:8px 16px;cursor:pointer;border:1px solid var(--vio);background:var(--bg);color:var(--vio)}
+button.pri{background:var(--vio);color:#fff;border-color:var(--vio)}
+:root[data-theme=dark] button.pri{color:#1a1020}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) button.pri{color:#1a1020}}
+.timer{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.clock{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;min-width:3.4em}
+.res{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:baseline;margin:10px 0 2px}
+.big{font-size:52px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.lab{font-size:15px;color:var(--mut)}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;color:#fff;font-weight:700;font-size:14px}
+.ruler{position:relative;height:14px;border-radius:7px;display:flex;overflow:hidden;margin:8px 0 2px}
+.ruler i{display:block;height:100%}
+.mark{position:relative;height:16px}
+.mark b{position:absolute;top:0;width:3px;height:16px;background:var(--ink);border-radius:2px;transform:translateX(-1px);transition:left .3s}
+.ticks{position:relative;height:18px;font-size:13px;color:var(--mut)}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.parts{width:100%;border-collapse:collapse;font-size:15px;margin-top:10px}
+.parts td{padding:4px 0;border-top:1px solid var(--line)}
+.parts td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.warn{font-size:14px;color:var(--mut);margin-top:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.mbar{display:none}
+table.k{width:100%;border-collapse:collapse;font-size:15px}
+table.k th,table.k td{text-align:left;padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+table.k td:first-child{font-weight:700;white-space:nowrap}
+details summary{cursor:pointer;font-weight:700;color:var(--vio);min-height:32px}
+.src{font-size:14px;color:var(--mut)}
+.src a{color:var(--vio)}
+.fig-ink{stroke:var(--fig);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.fig-on{stroke:var(--vio)}
+.head{fill:var(--fig)}
+.bed{fill:var(--line)}
+.mv{stroke:var(--vio);stroke-width:2.5;fill:none;stroke-dasharray:5 4}
+.rs{stroke:var(--rose);stroke-width:4;fill:none}
+@media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}.side{position:static}.mbar{display:flex;position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:8px max(4vw,16px);gap:16px;align-items:center;font-size:15px}.mbar b{font-size:20px}}
+@media(max-width:600px){dl{grid-template-columns:minmax(0,1fr)}dt{margin-top:4px}}
+@media(prefers-reduced-motion:reduce){.mark b{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>JDMAI à beira do leito</h1>
+  <p>Calculadora do Juvenile DermatoMyositis Activity Index 1 e 2 com o exame organizado pela posição do paciente: ele senta, deita de costas, de lado, de bruços e termina no chão, sem idas e voltas.</p>
+  <nav class="route" id="route" aria-label="Etapas do exame"></nav>
+</header>
+<div class="mbar" id="mbar"><span>JDMAI1 <b id="m1">–</b></span><span>JDMAI2 <b id="m2">–</b></span><span id="mst" class="note"></span></div>
+<main class="wrap">
+  <div id="steps"></div>
+  <aside class="side"><div class="res" id="res" aria-live="polite"></div></aside>
+</main>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- desenhos ---------- */
+const L=(pts,on)=>`<polyline class="fig-ink${on?' fig-on':''}" points="${pts}"/>`;
+const H=(x,y,r=9)=>`<circle class="head" cx="${x}" cy="${y}" r="${r}"/>`;
+const R=(x1,y1,x2,y2)=>`<line class="rs" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#ar)"/>`;
+const M=d=>`<path class="mv" d="${d}"/>`;
+const defs=`<defs><marker id="ar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--rose)"/></marker></defs>`;
+const svg=(body,lbl)=>`<svg viewBox="0 0 160 110" role="img" aria-label="${esc(lbl)}">${defs}${body}</svg>`;
+const bedLow=`<rect class="bed" x="6" y="94" width="148" height="8" rx="3"/>`;
+const bedSeat=`<rect class="bed" x="30" y="74" width="80" height="30" rx="4"/>`;
+const sitSide=(arm,leg)=>bedSeat+L('80,70 80,32')+H(80,18)+(leg||L('80,70 110,70 110,100'))+(arm||L('80,34 84,60'));
+const ICON={
+ pre:`<svg viewBox="0 0 160 110"><rect x="40" y="20" width="80" height="80" rx="8" fill="none" stroke="currentColor" stroke-width="7"/><path d="M58 48h44M58 64h44M58 80h28" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>`,
+ sent:`<svg viewBox="0 0 160 110"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path d="M80 70V32M80 70h30v30M80 36l6 26"/></g><circle cx="80" cy="16" r="10" fill="currentColor"/></svg>`,
+ sup:`<svg viewBox="0 0 160 110"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path d="M38 78h112"/></g><circle cx="24" cy="76" r="11" fill="currentColor"/></svg>`,
+ lat:`<svg viewBox="0 0 160 110"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path d="M34 80h54M88 82l26 8M88 78l52-20"/></g><circle cx="20" cy="76" r="11" fill="currentColor"/></svg>`,
+ pro:`<svg viewBox="0 0 160 110"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path d="M34 82h54l32-8V48"/></g><circle cx="20" cy="80" r="11" fill="currentColor"/></svg>`,
+ chao:`<svg viewBox="0 0 160 110"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path d="M20 100h120M80 62V30M80 62l-20 14 10 22M80 62l18 36M80 34l-16 24"/></g><circle cx="80" cy="16" r="10" fill="currentColor"/></svg>`,
+ fim:`<svg viewBox="0 0 160 110"><path d="M40 58l26 26 54-56" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+/* ---------- dados ---------- */
+/* Textos adaptados de: NIEHS/IMACS, Manual Muscle Testing Procedures for MMT8 Testing (2007). Fotos do mesmo documento. */
+const MMT={
+ pescoco:{n:'Flexores do pescoço',img:'pescoco',cap:'Mão do examinador na testa; paciente com a cabeça elevada e o queixo recolhido.',pos:'Decúbito dorsal, braços ao lado do corpo, cabeça apoiada na maca.',cmd:'“Levante a cabeça da maca e segure aí. Não deixe eu empurrar. Não levante os ombros.”',est:'Pode deixar uma mão sob a cabeça (proteção) ou estabilizar sobre o abdome, se precisar.',res:'Na testa, em direção à extensão da cabeça e do pescoço.',ge:'pescoco-ge',gepos:'Decúbito lateral com a cabeça apoiada; o examinador sustenta a cabeça para evitar inclinação lateral. “Leve a cabeça em direção ao peito.”',erro:'Aceitar elevação dos ombros ou cabeça levantada sem recolher o queixo (sem flexão cervical).'},
+ deltoide:{n:'Deltoide médio (abdução do ombro)',img:'deltoide',cap:'Ombro abduzido a 90°, cotovelo fletido; pressão na face dorsal do úmero distal.',pos:'Sentado, ombro abduzido a 90°, cotovelo fletido (indica rotação neutra).',cmd:'“Segure o braço levantado assim, vou empurrar aqui e você não deixa descer. Forte como uma árvore!”',est:'Examinador do lado testado; a outra mão pode apoiar o ombro.',res:'Face dorsal da extremidade distal do úmero (acima do cotovelo), para baixo.',ge:'deltoide-ge',gepos:'Decúbito dorsal, braço apoiado na maca com cotovelo levemente fletido; o paciente desliza o braço para o lado sem rodar o ombro. O examinador sustenta o braço para reduzir o atrito.',erro:'Resistir no punho (alavanca longa demais) ou permitir elevar o ombro (trapézio) e rodar o braço.'},
+ biceps:{n:'Bíceps braquial (flexão do cotovelo)',img:'biceps',cap:'Cotovelo a 90°, antebraço supinado; resistência no antebraço distal e contra-apoio no úmero.',pos:'Sentado, cotovelo fletido em ângulo reto, antebraço em supinação.',cmd:'“Dobre o cotovelo e segure. Não deixe eu puxar o seu braço para baixo.”',est:'A outra mão no úmero, fazendo contraforça.',res:'Face flexora do antebraço, logo proximal ao punho, em direção à extensão.',ge:'biceps-ge',gepos:'Sentado com o ombro abduzido a 90° (braço apoiado sob cotovelo e punho) ou em decúbito lateral; parte do cotovelo estendido e flete com a mão supinada.',erro:'Não perceber que o paciente prona o antebraço antes de fletir: é sinal de bíceps/braquial fracos.'},
+ punho:{n:'Extensores do punho',img:'punho',cap:'Antebraço apoiado em pronação, dedos fletidos; resistência no dorso dos metacarpos.',pos:'Sentado, cotovelo e antebraço apoiados, antebraço em pronação completa, dedos fletidos.',cmd:'“Levante a mão para trás e segure. Não deixe eu abaixar.”',est:'Apoie o antebraço por baixo, logo antes do punho.',res:'Dorso dos metacarpos, em direção à flexão.',ge:'punho-ge',gepos:'Sentado, antebraço apoiado em posição neutra; o examinador sustenta o punho (tira o atrito) e o paciente estende o punho.',erro:'Permitir extensão completa dos dedos (eles ajudam o movimento) ou resistir sobre os dedos.'},
+ quadriceps:{n:'Quadríceps (extensão do joelho)',img:'quadriceps',cap:'Duas opções de apoio sob a coxa: o antebraço do examinador (esq.) ou uma toalha enrolada (dir.).',pos:'Sentado com o tronco perpendicular ao chão, joelho estendido sem travar.',cmd:'“Chute a perna até ficar reta. Agora segure reta enquanto eu tento dobrar.”',est:'Mão (ou toalha enrolada) sob a coxa distal, como fulcro.',res:'Face anterior da perna, logo acima do tornozelo, em direção à flexão.',ge:'quadriceps-ge',gepos:'Decúbito lateral, membro testado por cima, joelho a 90° e quadril estendido; o examinador sustenta coxa e perna, sem ajudar nem resistir.',erro:'Deixar o joelho “travar” em extensão ou o tronco inclinar para trás (só permitido se houver encurtamento importante de isquiotibiais). O app original rotula como “hip flexion”: o teste é de extensão do joelho.'},
+ tornozelo:{n:'Dorsiflexores do tornozelo',img:'tornozelo',img2:'tornozelo-b',cap:'Joelho a 90°; o examinador sustenta a perna acima do tornozelo e pressiona o dorso do pé.',pos:'Sentado, joelho fletido a 90°.',cmd:'“Puxe o pé para cima, para o teto, e segure. Não deixe eu empurrar para baixo.”',est:'Sustente a perna logo acima da face posterior do tornozelo.',res:'Dorso do pé, em direção à flexão plantar e eversão.',ge:null,gepos:'Decúbito lateral, membro testado por cima, joelho estendido e quadril estendido; o paciente leva o pé da flexão plantar à dorsiflexão, sem ajuda nem resistência.',erro:'Aceitar o movimento feito com extensão do hálux.'},
+ gmedio:{n:'Glúteo médio (abdução do quadril)',img:'gmedio',cap:'Decúbito lateral, perna de baixo fletida; uma mão logo acima do trocânter, a outra na face lateral da perna.',pos:'Decúbito lateral (sobre o lado esquerdo para testar o direito), perna de baixo fletida; perna testada levemente estendida além da linha média, pelve levemente rodada para frente.',cmd:'“Levante a perna com o joelho esticado e segure enquanto eu empurro.”',est:'Uma mão logo proximal ao trocânter maior.',res:'Face lateral do joelho ou do tornozelo, reta para baixo.',ge:'gmedio-ge',gepos:'Decúbito dorsal; o examinador sustenta a perna sob o tornozelo, sem ajudar. “Leve a perna para o lado, com a patela apontando para o teto.”',erro:'Permitir que o paciente flexione ou rode o quadril durante a abdução.'},
+ gmaximo:{n:'Glúteo máximo (extensão do quadril)',img:'gmaximo',cap:'Decúbito ventral, joelho a 90°; mão na face posterior da coxa acima do joelho, outra estabilizando a pelve.',pos:'Decúbito ventral, joelho fletido a 90°.',cmd:'“Dobre o joelho e levante a perna inteira para o teto. Segure, não deixe eu empurrar.”',est:'A outra mão estabiliza a pelve, na parte alta das nádegas.',res:'Face posterior da coxa, logo acima do joelho, direto para baixo.',ge:'gmaximo-ge',gepos:'Decúbito lateral, membro testado por cima, joelho fletido apoiado no antebraço do examinador; o paciente estende o quadril (do início em flexão até a extensão, sem estender a coluna lombar).',erro:'Perder os 90° de flexão do joelho ou aceitar extensão lombar no lugar da extensão do quadril.'},
+};
+const KEND=[['0','0','Zero','Nenhuma contração palpável'],['T','1','Traço','Tendão proeminente ou contração fraca palpável, sem movimento visível'],['1','2−','Poor−','Plano horizontal: amplitude parcial'],['2','2','Poor','Plano horizontal: amplitude completa'],['3','2+','','Contra a gravidade: amplitude parcial'],['4','3−','Fair−','Cede gradualmente da posição de teste'],['5','3','Fair','Mantém a posição de teste, sem pressão'],['6','3+','Fair+','Mantém contra pressão leve'],['7','4−','Good−','Mantém contra pressão leve a moderada'],['8','4','Good','Mantém contra pressão moderada'],['9','4+','Good+','Mantém contra pressão moderada a forte'],['10','5','Normal','Mantém contra pressão forte']];
+const num=v=>v==='T'?0:+v;
+const SITUPS=['Mãos nas coxas, com contra-apoio','Mãos cruzadas no peito, com contra-apoio','Mãos atrás da cabeça, com contra-apoio','Mãos nas coxas, sem contra-apoio','Mãos cruzadas no peito, sem contra-apoio','Mãos atrás da cabeça, sem contra-apoio'];
+const HEAD=[[0,'Incapaz'],[1,'1–9 s'],[2,'10–29 s'],[3,'30–59 s'],[4,'60–119 s'],[5,'≥ 2 min']];
+const FLOOR=[[0,'Incapaz, mesmo podendo apoiar numa cadeira'],[2,'Muita dificuldade: consegue, mas precisa apoiar numa cadeira'],[4,'Dificuldade moderada: sem cadeira, mas apoia uma ou ambas as mãos nas coxas, joelhos ou chão'],[6,'Dificuldade leve: não apoia as mãos, mas tem alguma dificuldade na subida'],[9,'Sem dificuldade']];
+const STYPE=[[0,'Ausente ou totalmente resolvido'],[1,'Apenas alterações atróficas (inclui pápulas de Gottron)'],[2,'Eritema leve'],[3,'Eritema moderado'],[4,'Eritema grave']];
+const SDIST=[[0,'Nenhuma'],[1,'Focal: pele periarticular (ex.: Gottron), face incluindo pálpebras'],[2,'Difusa: superfícies extensoras dos membros, região do xale'],[3,'Generalizada: inclui tronco, mais da metade da superfície']];
+const VASC=['Eritema palpebral','Dilatação de vasos palpebrais','Trombose de vasos palpebrais','Eritema periungueal (cutículas)','Telangiectasia do leito ungueal','Dilatação de vasos do palato','Outra vasculopatia cutânea'];
+const GOTT=[[0,'Ausentes'],[1,'Leves'],[2,'Moderadas'],[3,'Graves']];
+const CUT={j1:{max:40,id:2.4,lda:6.6,mda:11},j2:{max:39,id:5.2,lda:8.5,mda:11.3}};
+const STATES=[['Doença inativa','var(--id)'],['Baixa atividade','var(--lda)'],['Atividade moderada','var(--mda)'],['Alta atividade','var(--hda)']];
+
+/* ---------- estado ---------- */
+const S={};
+const reset=()=>{Object.assign(S,{paga:null,phga:null,skinvas:null,stype:null,sdist:null,gott:null,vasc:VASC.map(()=>false),head:null,floor:null,sit:SITUPS.map(()=>null)});for(const k in MMT)S['m_'+k]=null;};
+reset();
+
+/* ---------- componentes ---------- */
+const vas=(id,lo,hi)=>`<div class="vas"><input type="range" id="${id}" min="0" max="10" step="0.5" value="0" aria-label="${esc(lo)} a ${esc(hi)}"><output id="${id}o">–</output><button type="button" class="clr" data-clr="${id}">Limpar</button></div><div class="ends"><span>0 = ${lo}</span><span>10 = ${hi}</span></div>`;
+const radios=(name,list)=>`<div class="opts">${list.map(([v,t])=>`<label class="opt"><input type="radio" name="${name}" value="${v}"><span><b>${v}</b> · ${t}</span></label>`).join('')}</div>`;
+const pic=(f,alt)=>`<img src="img/${f}.jpg" alt="${esc(alt)}" loading="lazy">`;
+const mmtCard=k=>{const m=MMT[k];return `<div class="card"><h3>${m.n}</h3><figure class="ph${m.img2?' dup':''}">${pic(m.img,m.n+': posição de teste contra a gravidade')}${m.img2?pic(m.img2,m.n+': outra vista'):''}<figcaption>${m.cap}</figcaption></figure><dl><dt>Posição</dt><dd>${m.pos}</dd><dt>Comando</dt><dd>${m.cmd}</dd><dt>Estabilizar</dt><dd>${m.est}</dd><dt>Resistência</dt><dd>${m.res}</dd></dl><p class="err"><b>Erro comum:</b> ${m.erro}</p><details class="ge"><summary>Não vence a gravidade? Teste sem gravidade</summary>${m.ge?`<figure class="ph">${pic(m.ge,m.n+': posição sem gravidade')}</figure>`:''}<p>${m.gepos}</p><p class="note">Sem gravidade só se pontua 0, T, 1 ou 2.</p></details><label class="f" for="m_${k}">Grau (Kendall 0–10)</label><select id="m_${k}"><option value="">Selecione</option>${KEND.map(([v,g,n,t])=>`<option value="${v}">${v} · ${t} (${g}${n?' '+n:''})</option>`).join('')}</select></div>`;};
+const STEPS=[
+ {id:'pre',ic:'pre',t:'Antes do exame',s:'Pais ou paciente, na sala de espera',h:`<p>Pergunta aos pais (ou ao paciente, se tiver idade para responder): <b>“Considerando todas as formas como a doença afeta seu filho, como ele está se sentindo neste momento?”</b></p><label class="f" for="paga">Avaliação global dos pais/paciente (PaGA)</label>${vas('paga','muito bem','muito mal')}`},
+ {id:'pele',ic:'sent',t:'Sentado · pele',s:'Inspeção com o paciente sentado: face, pálpebras, mãos, cutículas, palato, membros e tronco (sem camisa)',h:`<div class="card"><h3>DAS pele <span class="n">(JDMAI2, 0–9)</span></h3><label class="f">A. Tipo de acometimento cutâneo</label>${radios('stype',STYPE)}<label class="f">B. Distribuição</label>${radios('sdist',SDIST)}<label class="f">C. Vasculopatia <span class="n">(qualquer item presente = 1 ponto)</span></label><div class="opts two">${VASC.map((t,i)=>`<label class="opt"><input type="checkbox" id="v${i}"><span>${t}</span></label>`).join('')}</div><label class="f">D. Pápulas de Gottron <span class="n">(qualquer grau = 1 ponto)</span></label>${radios('gott',GOTT)}</div><div class="card"><h3>VAS de atividade cutânea <span class="n">(JDMAI1)</span></h3><p class="note">Avaliação global do médico sobre a atividade da pele, depois de inspecionar tudo acima.</p>${vas('skinvas','sem atividade','atividade máxima')}</div>`},
+ {id:'forca',ic:'sent',t:'Sentado · força',s:'Ainda sentado na beira da maca: 5 dos 8 grupos do MMT8',h:`<details class="card"><summary>Escala de Kendall 0–10 e regras gerais</summary><p class="note">Esta é a mesma ordem do manual do IMACS: sentado (1–5), decúbito dorsal (6), lateral (7), ventral (8). Teste o lado direito (MMT8 unilateral: 7 grupos × 10 + pescoço = 0–80). Antes de cada teste: <b>D</b>emonstre, <b>R</b>equisite a posição, <b>A</b>juste, <b>P</b>osicione as mãos, <b>E</b>xecute com o comando “Segura!”.</p><div class="scroll"><table class="k"><thead><tr><th>0–10</th><th>MRC</th><th>Critério</th></tr></thead><tbody>${KEND.map(([v,g,n,t])=>`<tr><td>${v}</td><td>${g}</td><td>${t}${n?` <span class="n">(${n})</span>`:''}</td></tr>`).join('')}</tbody></table></div><h3 style="margin-top:12px">Para melhorar a reprodutibilidade</h3><ul class="note"><li><b>0 × T:</b> depende de palpação, exige examinador treinado. O manual não dá número ao traço; aqui ele conta 0 na soma (o app original só aceita 0–10).</li><li><b>1–2:</b> ajuste o critério de amplitude se houver contratura.</li><li><b>3:</b> só pode ser dado na posição padrão, contra a gravidade.</li><li><b>4:</b> a descida até a posição de repouso deve durar pelo menos 3 segundos.</li><li><b>5:</b> a posição deve ser mantida por 3 segundos.</li><li><b>3 a 5:</b> reteste para o grau seguinte após 60 segundos de recuperação.</li><li><b>6 a 10:</b> aplique a força ao longo de 3 segundos. Esses graus dependem do tamanho do paciente e do examinador; se possível, use o mesmo examinador.</li></ul></details>${['deltoide','biceps','punho','quadriceps','tornozelo'].map(mmtCard).join('')}`},
+ {id:'supino',ic:'sup',t:'Decúbito dorsal',s:'Deitado de costas: pescoço (MMT8), elevação da cabeça e abdominais (CMAS)',h:`${mmtCard('pescoco')}<div class="card"><h3>Elevação da cabeça <span class="n">(CMAS, 0–5)</span></h3><p>Paciente em decúbito dorsal: <b>“Levante a cabeça olhando para os pés e segure o máximo que conseguir.”</b> Cronometre até a cabeça voltar a encostar na maca. Dê cerca de 1 minuto de descanso após o MMT do pescoço e mantenha a mesma ordem nas próximas consultas.</p><div class="timer"><span class="clock" id="clock">0 s</span><button type="button" class="pri" id="tgo">Iniciar</button><button type="button" id="tzero">Zerar</button></div>${radios('head',HEAD)}</div><div class="card"><h3>Abdominais <span class="n">(CMAS, 0–6)</span></h3><p class="note">Do decúbito dorsal até sentar. “Com contra-apoio” = o examinador segura os pés do paciente na maca. 1 ponto por manobra realizada.</p><div class="opts">${SITUPS.map((t,i)=>`<div class="opt" style="flex-wrap:wrap;justify-content:space-between;align-items:center"><span>${i+1}. ${t}</span><span style="display:flex;gap:14px"><label><input type="radio" name="su${i}" value="1"> Consegue</label><label><input type="radio" name="su${i}" value="0"> Não</label></span></div>`).join('')}</div></div>`},
+ {id:'lateral',ic:'lat',t:'Decúbito lateral',s:'Deitado de lado, sobre o lado não testado',h:mmtCard('gmedio')},
+ {id:'ventral',ic:'pro',t:'Decúbito ventral',s:'Deitado de bruços',h:mmtCard('gmaximo')},
+ {id:'chao',ic:'chao',t:'No chão',s:'Saindo da maca: ajoelhado no chão até ficar de pé',h:`<div class="card"><h3>Levantar do chão <span class="n">(CMAS, pontuação recodificada no hMC: 0, 2, 4, 6, 9)</span></h3><p>Paciente ajoelhado no chão: <b>“Fique de pé.”</b> Deixe uma cadeira por perto.</p>${radios('floor',FLOOR)}</div>`},
+ {id:'fim',ic:'fim',t:'Fechamento',s:'Avaliação global do médico, depois de todo o exame',h:`<label class="f" for="phga">Avaliação global da atividade da doença pelo médico (PhGA)</label>${vas('phga','sem atividade','atividade máxima')}`},
+];
+$('#route').innerHTML=STEPS.map(s=>`<a href="#${s.id}" id="r_${s.id}">${ICON[s.ic]}<span>${s.t}</span></a>`).join('');
+$('#steps').innerHTML=STEPS.map((s,i)=>`<section class="st" id="${s.id}"><div class="sthead">${ICON[s.ic].replace('<svg','<svg style="color:var(--vio)"')}<div><div class="n">Etapa ${i+1} de ${STEPS.length}</div><h2>${s.t}</h2><p class="note">${s.s}</p></div></div>${s.h}</section>`).join('');
+
+/* ---------- cálculo ---------- */
+const filled=v=>v!==null&&v!=='';
+const calc=()=>{
+ const mk=Object.keys(MMT),mmtOk=mk.every(k=>filled(S['m_'+k])),mmt=mk.reduce((a,k)=>a+(filled(S['m_'+k])?num(S['m_'+k]):0),0);
+ const sitOk=S.sit.every(filled),sit=S.sit.reduce((a,v)=>a+(+v||0),0);
+ const hmcOk=mmtOk&&sitOk&&filled(S.head)&&filled(S.floor),hmc=mmt+sit+(+S.head||0)+(+S.floor||0);
+ const mus=hmcOk?Math.ceil((100-hmc)/10-1e-9):null;
+ const dasOk=filled(S.stype)&&filled(S.sdist)&&filled(S.gott),das=(+S.stype||0)+(+S.sdist||0)+(S.vasc.some(Boolean)?1:0)+(+S.gott>0?1:0);
+ const g=filled(S.phga)&&filled(S.paga);
+ const j1=g&&hmcOk&&filled(S.skinvas)?S.phga+S.paga+mus+S.skinvas:null;
+ const j2=g&&hmcOk&&dasOk?S.phga+S.paga+mus+das:null;
+ return {mmt,mmtOk,sit,sitOk,hmc,hmcOk,mus,das,dasOk,j1,j2};
+};
+const state=(v,c)=>v<=c.id?0:v<=c.lda?1:v<=c.mda?2:3;
+const fmt=v=>Number.isInteger(v)?String(v):v.toFixed(1).replace('.',',');
+const ruler=(c,v)=>{const p=x=>x/c.max*100,seg=[[0,c.id,0],[c.id,c.lda,1],[c.lda,c.mda,2],[c.mda,c.max,3]];return `<div class="ruler">${seg.map(([a,b,i])=>`<i style="width:${p(b-a)}%;background:${STATES[i][1]}"></i>`).join('')}</div><div class="mark">${v===null?'':`<b style="left:${Math.min(100,p(v))}%"></b>`}</div><div class="ticks">${[c.id,c.lda,c.mda].map(x=>`<span style="left:${p(x)}%">${fmt(x)}</span>`).join('')}</div>`;};
+const block=(name,v,c,skinLbl,skinVal)=>{const st=v===null?null:state(v,c);return `<div class="score"><span class="big">${v===null?'–':fmt(v)}</span><span><b>${name}</b> <span class="lab">de 0–${c.max}</span><br>${st===null?'<span class="lab">incompleto</span>':`<span class="chip" style="background:${STATES[st][1]}">${STATES[st][0]}</span>`}</span></div>${ruler(c,v)}`;};
+const render=()=>{
+ const r=calc(),show=(ok,v)=>ok?fmt(v):'–';
+ const rows=[['PhGA',filled(S.phga)?fmt(S.phga):'–'],['PaGA',filled(S.paga)?fmt(S.paga):'–'],['Força (hMC em decis)',r.mus===null?'–':r.mus],['VAS pele → JDMAI1',filled(S.skinvas)?fmt(S.skinvas):'–'],['DAS pele → JDMAI2',show(r.dasOk,r.das)],['hMC (0–100)',show(r.hmcOk,r.hmc)],['MMT8 (0–80)',show(r.mmtOk,r.mmt)],['Abdominais (0–6)',show(r.sitOk,r.sit)],['Elevação da cabeça (0–5)',filled(S.head)?S.head:'–'],['Levantar do chão (0–9)',filled(S.floor)?S.floor:'–']];
+ $('#res').innerHTML=`<h2>Resultado</h2>${block('JDMAI1',r.j1,CUT.j1)}${block('JDMAI2',r.j2,CUT.j2)}<table class="parts"><tbody>${rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table><div class="acts"><button type="button" class="pri" id="copy">Copiar para o prontuário</button><button type="button" id="ex">Exemplo</button><button type="button" id="rst">Limpar tudo</button></div><p class="note" id="msg" role="status"></p><p class="warn">Os pontos de corte só valem para pacientes sem acometimento gastrointestinal, cardíaco ou pulmonar (Wouters et al., 2024). A força entra como decis invertidos do hMC: arredondamento para cima de (100 − hMC)/10.</p>`;
+ $('#m1').textContent=r.j1===null?'–':fmt(r.j1);$('#m2').textContent=r.j2===null?'–':fmt(r.j2);
+ $('#mst').textContent=r.j1===null?'':STATES[state(r.j1,CUT.j1)][0];
+ const done={pre:filled(S.paga),pele:r.dasOk&&filled(S.skinvas),forca:['deltoide','biceps','punho','quadriceps','tornozelo'].every(k=>filled(S['m_'+k])),supino:filled(S.m_pescoco)&&filled(S.head)&&r.sitOk,lateral:filled(S.m_gmedio),ventral:filled(S.m_gmaximo),chao:filled(S.floor),fim:filled(S.phga)};
+ for(const k in done)$('#r_'+k).classList.toggle('done',done[k]);
+ $('#copy').onclick=()=>{const t=`JDMAI1: ${r.j1===null?'incompleto':fmt(r.j1)+' ('+STATES[state(r.j1,CUT.j1)][0]+')'} | JDMAI2: ${r.j2===null?'incompleto':fmt(r.j2)+' ('+STATES[state(r.j2,CUT.j2)][0]+')'}\n`+rows.map(([a,b])=>`${a}: ${b}`).join('; ');navigator.clipboard.writeText(t).then(()=>$('#msg').textContent='Copiado.',()=>$('#msg').textContent='Não foi possível copiar neste navegador.');};
+ $('#rst').onclick=()=>{reset();sync();render();$('#msg').textContent='Formulário limpo.';};
+ $('#ex').onclick=()=>{Object.assign(S,{paga:3,phga:2,skinvas:4,stype:2,sdist:1,gott:2,vasc:VASC.map((_,i)=>i===0||i===3),head:3,floor:6,sit:[1,1,1,1,1,1]});for(const k in MMT)S['m_'+k]='8';sync();render();$('#msg').textContent='Valores fictícios de exemplo.';};
+};
+/* sincroniza controles com o estado */
+const sync=()=>{
+ for(const id of ['paga','phga','skinvas']){$('#'+id).value=S[id]??0;$('#'+id+'o').textContent=S[id]===null?'–':fmt(S[id]);}
+ for(const k in MMT)$('#m_'+k).value=S['m_'+k]??'';
+ for(const n of ['stype','sdist','gott','head','floor'])document.querySelectorAll(`input[name=${n}]`).forEach(e=>e.checked=S[n]!==null&&+e.value===+S[n]);
+ S.vasc.forEach((v,i)=>$('#v'+i).checked=v);
+ S.sit.forEach((v,i)=>document.querySelectorAll(`input[name=su${i}]`).forEach(e=>e.checked=v!==null&&+e.value===+v));
+};
+document.addEventListener('input',e=>{const t=e.target,id=t.id,nm=t.name;
+ if(['paga','phga','skinvas'].includes(id)){S[id]=+t.value;$('#'+id+'o').textContent=fmt(S[id]);}
+ else if(id.startsWith('m_'))S[id]=t.value===''?null:t.value;
+ else if(/^v\d$/.test(id))S.vasc[+id.slice(1)]=t.checked;
+ else if(['stype','sdist','gott','head','floor'].includes(nm))S[nm]=+t.value;
+ else if(/^su\d$/.test(nm))S.sit[+nm.slice(2)]=+t.value;
+ render();});
+document.addEventListener('click',e=>{const c=e.target.closest('[data-clr]');if(c){S[c.dataset.clr]=null;sync();render();}});
+/* cronômetro da elevação da cabeça */
+let t0=null,tick=null;
+const secs=()=>t0===null?0:Math.floor((Date.now()-t0)/1000);
+const headScore=s=>s<1?0:s<10?1:s<30?2:s<60?3:s<120?4:5;
+$('#tgo').onclick=()=>{if(tick){clearInterval(tick);tick=null;const s=secs();S.head=headScore(s);sync();render();$('#tgo').textContent='Iniciar';}else{t0=Date.now();$('#tgo').textContent='Parar (cabeça encostou)';tick=setInterval(()=>$('#clock').textContent=secs()+' s',250);}};
+$('#tzero').onclick=()=>{clearInterval(tick);tick=null;t0=null;$('#clock').textContent='0 s';$('#tgo').textContent='Iniciar';};
+sync();render();
+}
+</script>
+<footer class="wrap" style="display:block;padding-top:0">
+<p class="src">Tradução livre para o português, sem validação transcultural. Cálculo conferido com o app oficial do Istituto Giannina Gaslini (<a href="https://biodaas.gaslini.org/jdmai-app">biodaas.gaslini.org/jdmai-app</a>). Referências: Rosina S et al. Rheumatology 2019;58:1196–205 (<a href="https://doi.org/10.1093/rheumatology/key421">doi</a>); Varnier GC et al. Arthritis Care Res 2018;70:1312–9, hMC (<a href="https://doi.org/10.1002/acr.23491">doi</a>); Wouters C et al. RMD Open 2024;10:e003093, pontos de corte (<a href="https://doi.org/10.1136/rmdopen-2023-003093">doi</a>). Fotos, comandos e escala de Kendall 0–10: NIEHS/IMACS, <i>Manual Muscle Testing Procedures for MMT8 Testing</i> (2007).</p>
+</footer>
+</body>
+</html>
